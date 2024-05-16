@@ -5,6 +5,7 @@ class Empleado {
     #salario = 0;
     #estrato = 0;
     #rural = 1;
+    #extranjero = 1;
 
     set nombreEmpleado(nuevonombreEmpleado){
         this.#nombreEmpleado = nuevonombreEmpleado;
@@ -34,7 +35,14 @@ class Empleado {
         return this.#rural;
     }
 
-    constructor(nombreEmpleado, salario, estrato, rural){
+    set extranjero(nuevoextranjero){
+        this.#extranjero = nuevoextranjero;        
+    }
+    get extranjero(){
+        return this.#extranjero;
+    }
+
+    constructor(nombreEmpleado, salario, estrato, rural, extranjero){
         if(nombreEmpleado == undefined){
             throw new Error('El nombre del empleado es requerido');}
 
@@ -47,10 +55,15 @@ class Empleado {
         if(rural < 1 || rural > 2){
             throw new Error('Recuerda que el campo rural debe ser si(1)/no(2)');
         }
+        if(extranjero < 1 || extranjero > 2){
+            throw new Error('Recuerda que el campo extranjero debe ser si(1)/no(2)');
+        }
+
         this.#nombreEmpleado = nombreEmpleado;
         this.#salario = salario;
         this.#estrato = estrato;
         this.#rural = rural;
+        this.#extranjero = extranjero;
     }
 }
 
@@ -181,6 +194,34 @@ class ListaEmpleados {
             console.log(`La nomina total de todos los empleados con subsidio rural es: ${totalNominaSubsidioRural}`);
         }
     }
+
+    subsidioExtranjero(){
+        let salarioSiExtranjero = 0;
+        let totalNominaSubsidioExtranjero = 0;
+
+        if(this.cabeza == null){
+            console.log(`No hay empleados para mostrar, no hay nodos en la lista`);
+        }
+        else {
+            let nodoTmp = this.cabeza;
+            let i = 1;
+            while(nodoTmp != null){
+                if(nodoTmp.valor.extranjero == 1){
+                    nodoTmp.valor.salarioSiExtranjero = nodoTmp.valor.salario + 200000;
+                    console.log(`El salario del empleado ${nodoTmp.valor.nombreEmpleado} con subsidop extranjero es: ${nodoTmp.valor.salarioSiExtranjero}`);
+                    salarioSiExtranjero += nodoTmp.valor.salarioSiExtranjero;
+                }
+                else {
+                    console.log(`El empleado ${nodoTmp.valor.nombreEmpleado} no es extranjero`);
+                    totalNominaSubsidioExtranjero += nodoTmp.valor.salario;
+                }
+
+                nodoTmp = nodoTmp.siguiente;
+                i++;
+            }totalNominaSubsidioExtranjero += salarioSiExtranjero;
+            console.log(`La nomina total de todos los empleados con subsidio por concepto extranjero es: ${totalNominaSubsidioExtranjero}`);
+        }
+    }
 }
 
 const listaEmpleados = new ListaEmpleados();
@@ -191,8 +232,9 @@ while(continuar){
     const salario = +readlineSync.question('Ingrese el salario del empleado: ');
     const estrato = +readlineSync.question('Ingrese el estrato del empleado: ');
     const rural = readlineSync.question('El empleado vive en zona rural? (s(1)/n(2)): ');
+    const extranjero = readlineSync.question('El empleado es extranjero? 1(SI)-2(NO): ');
 
-    const empleado = new Empleado(nombreEmpleado, salario, estrato, rural);
+    const empleado = new Empleado(nombreEmpleado, salario, estrato, rural, extranjero);
     listaEmpleados.insertar(empleado);
 
     const respuesta = readlineSync.question('Desea agregar otro empleado? (s/n): ');
@@ -205,6 +247,4 @@ listaEmpleados.mostrarTodosLosEmpleados();
 listaEmpleados.nominaTotlaItems();
 listaEmpleados.subsidioEstrato();
 listaEmpleados.subsidioRural();
-
-
-
+listaEmpleados.subsidioExtranjero();
