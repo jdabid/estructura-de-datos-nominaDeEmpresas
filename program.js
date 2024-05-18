@@ -1,5 +1,10 @@
 const readlineSync = require('readline-sync');
 
+let totales = 0;
+let empleadoMasCuesta = 0;
+let totalPasajes = 0;
+let totalSecundaria = 0;
+
 class Empleado {
     #nombreEmpleado = '';
     #salario = 0;
@@ -7,6 +12,7 @@ class Empleado {
     #rural = 1;
     #extranjero = 1;
     #hijos = 1;
+    #genero = 1;
 
     set nombreEmpleado(nuevonombreEmpleado){
         this.#nombreEmpleado = nuevonombreEmpleado;
@@ -50,7 +56,14 @@ class Empleado {
         return this.#hijos;
     }
 
-    constructor(nombreEmpleado, salario, estrato, rural, extranjero, hijos){
+    set genero(nuevogenero){
+        this.#genero = nuevogenero;
+    }
+    get genero(){
+        return this.#genero;
+    }
+
+    constructor(nombreEmpleado, salario, estrato, rural, extranjero, hijos, genero){
         if(nombreEmpleado == undefined){
             throw new Error('El nombre del empleado es requerido');}
 
@@ -69,6 +82,9 @@ class Empleado {
         if(hijos < 1 || hijos > 2){
             throw new Error('Recuerda que el campo hijos debe ser 1(SI)-2(NO)');
         }
+        if(genero < 1 || genero > 2){
+            throw new Error('Recuerda que el campo genero debe ser 1(Hombre)-2(Mujer)');
+        }
 
         this.#nombreEmpleado = nombreEmpleado;
         this.#salario = salario;
@@ -76,6 +92,7 @@ class Empleado {
         this.#rural = rural;
         this.#extranjero = extranjero;
         this.#hijos = hijos;
+        this.#genero = genero;
     }
 }
 
@@ -122,24 +139,7 @@ class ListaEmpleados {
             }
         }
     }
-
-    nominaTotlaItems(){
-        if(this.cabeza == null){
-            console.log(`No hay empleados para mostrar, no hay nodos en la lista`);
-        }
-        else {
-            let nodoTmp = this.cabeza;
-            let i = 1;
-            let totalNomina = 0;
-            while(nodoTmp != null){
-                totalNomina += nodoTmp.valor.salario;
-                nodoTmp = nodoTmp.siguiente;
-                i++;
-            }
-            console.log(`La nomina total de todos los empleados es: ${totalNomina}`);
-        }
-    }
-
+    
     subsidioEstrato(){
         let salarioEstrato1 = 0;
         let salarioEstrato2 = 0;
@@ -154,19 +154,23 @@ class ListaEmpleados {
             let i = 1;
             while(nodoTmp != null){
                 if(nodoTmp.valor.estrato == 1){
-                    nodoTmp.valor.salarioEstrato1 = nodoTmp.valor.salario + (nodoTmp.valor.salario * 0.15);
-                    console.log(`El salario del empleado ${nodoTmp.valor.nombreEmpleado} con subsidop por estrato 1 es: ${nodoTmp.valor.salarioEstrato1}`);
-                    salarioEstrato1 += nodoTmp.valor.salarioEstrato1;
+                    nodoTmp.valor.salarioEstrato1 = (nodoTmp.valor.salario * 0.15);
+                    //console.log(`El salario del empleado ${nodoTmp.valor.nombreEmpleado} con subsidop por estrato 1 es: ${nodoTmp.valor.salarioEstrato1}`);
+                    console.log(`El subsidop por estrato 1 del empleado ${nodoTmp.valor.nombreEmpleado} es: ${nodoTmp.valor.salarioEstrato1}`);
+                    console.dir(`**********************************************************`);
+                    salarioEstrato1 += nodoTmp.valor.salario + nodoTmp.valor.salarioEstrato1;
                 }
                 else if(nodoTmp.valor.estrato == 2){
-                    nodoTmp.valor.salarioEstrato2 = nodoTmp.valor.salario + (nodoTmp.valor.salario * 0.10);
-                    console.log(`El salario del empleado ${nodoTmp.valor.nombreEmpleado} con subsidop por estrato 2 es: ${nodoTmp.valor.salarioEstrato2}`);
-                    salarioEstrato2 += nodoTmp.valor.salarioEstrato2;
+                    nodoTmp.valor.salarioEstrato2 = (nodoTmp.valor.salario * 0.10);
+                    console.log(`El subsidop por estrato 2 del empleado ${nodoTmp.valor.nombreEmpleado} es: ${nodoTmp.valor.salarioEstrato2}`);
+                    console.dir(`**********************************************************`);
+                    salarioEstrato2 += nodoTmp.valor.salario + nodoTmp.valor.salarioEstrato2;
                 }
                 else if(nodoTmp.valor.estrato == 3){
-                    nodoTmp.valor.salarioEstrato3 = nodoTmp.valor.salario + (nodoTmp.valor.salario * 0.05);
-                    console.log(`El salario del empleado ${nodoTmp.valor.nombreEmpleado} con subsidop por estrato 3 es: ${nodoTmp.valor.salarioEstrato3}`);
-                    salarioEstrato3 += nodoTmp.valor.salarioEstrato3;
+                    nodoTmp.valor.salarioEstrato3 = (nodoTmp.valor.salario * 0.05);
+                    console.log(`El subsidop por estrato 3 del empleado ${nodoTmp.valor.nombreEmpleado} es: ${nodoTmp.valor.salarioEstrato3}`);
+                    console.dir(`**********************************************************`);
+                    salarioEstrato3 += nodoTmp.valor.salario + nodoTmp.valor.salarioEstrato3;
                 }
                 else {
                     console.log(`El empleado ${nodoTmp.valor.nombreEmpleado} no tiene subsidio por concepto de estrato`);
@@ -177,6 +181,9 @@ class ListaEmpleados {
                 i++;
             }totalNominaSubsidioEstrato += salarioEstrato1 + salarioEstrato2 + salarioEstrato3;
             console.log(`La nomina total de todos los empleados con subsidio por estrato es: ${totalNominaSubsidioEstrato}`);
+            console.dir(`**********************************************************`);
+            totales = totales + totalNominaSubsidioEstrato;
+            
         }
     }
 
@@ -192,19 +199,21 @@ class ListaEmpleados {
             let i = 1;
             while(nodoTmp != null){
                 if(nodoTmp.valor.rural == 1){
-                    nodoTmp.valor.salarioSiRural = nodoTmp.valor.salario + 35000;
-                    console.log(`El salario del empleado ${nodoTmp.valor.nombreEmpleado} con subsidop rural es: ${nodoTmp.valor.salarioSiRural}`);
+                    nodoTmp.valor.salarioSiRural = 35000;
+                    console.log(`El subsidop rural del empleado ${nodoTmp.valor.nombreEmpleado} es: ${nodoTmp.valor.salarioSiRural}`);
                     salarioSiRural += nodoTmp.valor.salarioSiRural;
                 }
                 else {
                     console.log(`El empleado ${nodoTmp.valor.nombreEmpleado} no vive en zona rural`);
-                    totalNominaSubsidioRural += nodoTmp.valor.salario;
+                    totalNominaSubsidioRural += nodoTmp.valor.salario + nodoTmp.valor.salarioSiRural;
                 }
 
                 nodoTmp = nodoTmp.siguiente;
                 i++;
             }totalNominaSubsidioRural += salarioSiRural;
             console.log(`La nomina total de todos los empleados con subsidio rural es: ${totalNominaSubsidioRural}`);
+            console.dir(`**********************************************************`);
+            totales = totales + totalNominaSubsidioRural;
         }
     }
 
@@ -220,9 +229,9 @@ class ListaEmpleados {
             let i = 1;
             while(nodoTmp != null){
                 if(nodoTmp.valor.extranjero == 1){
-                    nodoTmp.valor.salarioSiExtranjero = nodoTmp.valor.salario + 200000;
-                    console.log(`El salario del empleado ${nodoTmp.valor.nombreEmpleado} con subsidop extranjero es: ${nodoTmp.valor.salarioSiExtranjero}`);
-                    salarioSiExtranjero += nodoTmp.valor.salarioSiExtranjero;
+                    nodoTmp.valor.salarioSiExtranjero = 200000;
+                    console.log(`El subsidio por extranjero del empleado ${nodoTmp.valor.nombreEmpleado} es: ${nodoTmp.valor.salarioSiExtranjero}`);
+                    salarioSiExtranjero += nodoTmp.valor.salario + nodoTmp.valor.salarioSiExtranjero;
                 }
                 else {
                     console.log(`El empleado ${nodoTmp.valor.nombreEmpleado} no es extranjero`);
@@ -233,6 +242,48 @@ class ListaEmpleados {
                 i++;
             }totalNominaSubsidioExtranjero += salarioSiExtranjero;
             console.log(`La nomina total de todos los empleados con subsidio por concepto extranjero es: ${totalNominaSubsidioExtranjero}`);
+            console.dir(`**********************************************************`);
+            totales = totales + totalNominaSubsidioExtranjero;
+            totalPasajes = totalPasajes + totalNominaSubsidioExtranjero;
+        }
+    }
+
+    //hombre - mujere
+    calcularSalarioHombreMujer(){
+        let salarioHombre = 0;
+        let salarioMujer = 0;
+        let totalNominaSalarioHombre = 0;
+        let totalNominaSalarioMujer = 0;
+
+        if(this.cabeza == null){
+            console.log(`No hay empleados para mostrar, no hay nodos en la lista`);
+        }
+        else {
+            let nodoTmp = this.cabeza;
+            let i = 1;
+            while(nodoTmp != null){
+                if(nodoTmp.valor.genero == 1){
+                    nodoTmp.valor.salarioHombre = nodoTmp.valor.salario;
+                    console.log(`El salario hombre es: ${nodoTmp.valor.salarioHombre}`);
+                    salarioHombre += nodoTmp.valor.salarioHombre;
+                    
+                }
+                else {
+                    nodoTmp.valor.salarioMujer = nodoTmp.valor.salario;
+                    console.log(`El salario mujer es: ${nodoTmp.valor.salarioMujer}`);
+                    salarioMujer += nodoTmp.valor.salarioMujer;
+                    
+                }
+
+                nodoTmp = nodoTmp.siguiente;
+                i++;
+            }
+            totalNominaSalarioHombre += salarioHombre;
+            totalNominaSalarioMujer += salarioMujer;
+            console.log(`La nomina total de todos los hombres es: ${totalNominaSalarioHombre}`);
+            console.dir(`**********************************************************`);
+            console.log(`La nomina total de todas las mujeres es: ${totalNominaSalarioMujer}`);
+            console.dir(`**********************************************************`);
         }
     }
 
@@ -269,17 +320,15 @@ class ListaEmpleados {
                         console.dir('El empleado NO tiene hijos en primaria');
                     }else{
                         console.dir('El empleado SI tiene hijos en primaria');
-                        cantidadPrimaria = +readlineSync.question('Ingrese la cantidad de hijos en primaria: ');
-                        
+                        cantidadPrimaria = +readlineSync.question('Ingrese la cantidad de hijos en primaria: ');                        
                         while (cantidadPrimaria > cantidadHijosEstudian) {
                         console.log('La cantidad de hijos en primaria no puede ser mayor a la cantidad de hijos que estudian');
                         cantidadPrimaria = +readlineSync.question('Ingrese la cantidad de hijos en primaria: ');                        
                         }
-                        nodoTmp.valor.cantidadPrimaria = cantidadPrimaria;
-                         
-                        nodoTmp.valor.salarioPrimariaX = nodoTmp.valor.salario + (nodoTmp.valor.cantidadPrimaria * 1000);
-                        console.log(`El salario del empleado ${nodoTmp.valor.nombreEmpleado} con subsidio por estudiante primaria es: ${nodoTmp.valor.salarioPrimariaX}`);
-                        salarioPrimariaX += nodoTmp.valor.salarioPrimariaX;
+                        nodoTmp.valor.cantidadPrimaria = cantidadPrimaria;                         
+                        nodoTmp.valor.salarioPrimariaX = (nodoTmp.valor.cantidadPrimaria * 1000);
+                        console.log(`El subsidio por estudiante primaria del empleado ${nodoTmp.valor.nombreEmpleado} es: ${nodoTmp.valor.salarioPrimariaX}`);
+                        salarioPrimariaX += nodoTmp.valor.salario + nodoTmp.valor.salarioPrimariaX;
                     }
                     if ((cantidadHijosEstudian - cantidadPrimaria) == 0) {
                         console.log('El empleado no tiene hijos en secundaria ni en universidad');                        
@@ -299,24 +348,21 @@ class ListaEmpleados {
                             cantidadSecundaria = +readlineSync.question('Ingrese la cantidad de hijos en secundaria: ');                        
                             }
                             nodoTmp.valor.cantidadSecundaria = cantidadSecundaria;
-                            nodoTmp.valor.salarioSecundariaZ = nodoTmp.valor.salario + (nodoTmp.valor.cantidadSecundaria * 2000);
-                            console.log(`El salario del empleado ${nodoTmp.valor.nombreEmpleado} con subsidio por estudiante secundaria es: ${nodoTmp.valor.salarioSecundariaZ}`);
-                            salarioSecundariaZ += nodoTmp.valor.salarioSecundariaZ;                        
+                            nodoTmp.valor.salarioSecundariaZ = (nodoTmp.valor.cantidadSecundaria * 2000);
+                            console.log(`El subsidio por estudiante secundaria del empleado ${nodoTmp.valor.nombreEmpleado} es: ${nodoTmp.valor.salarioSecundariaZ}`);
+                            salarioSecundariaZ += nodoTmp.valor.salario + nodoTmp.valor.salarioSecundariaZ;                        
                         }
 
                         if ((cantidadHijosEstudian - cantidadPrimaria - cantidadSecundaria) == 0) {
                             console.log('El empleado NO tiene hijos en universidad');                            
                         } else {
                             console.dir('El empleado SI tiene hijos en universidad');
-                            cantidadUniversidad = +readlineSync.question('Ingrese la cantidad de hijos en universidad: ');
-                            while (cantidadUniversidad > (cantidadHijosEstudian - cantidadPrimaria - cantidadSecundaria)) {
-                                console.log('La cantidad de hijos en universidad no puede ser mayor a la cantidad de hijos que estudian');
-                                cantidadUniversidad = +readlineSync.question('Ingrese la cantidad de hijos en universidad: ');
-                            }
+                            cantidadUniversidad = (cantidadHijosEstudian - cantidadPrimaria - cantidadSecundaria);
+                            console.dir(`La cantidad de hijos en universidad es: ${cantidadUniversidad}`);
                             nodoTmp.valor.cantidadUniversidad = cantidadUniversidad;
-                            nodoTmp.valor.salarioUniversidadY = nodoTmp.valor.salario + (nodoTmp.valor.cantidadUniversidad * 3000);
-                            console.log(`El salario del empleado ${nodoTmp.valor.nombreEmpleado} con subsidio por estudiante universidad es: ${nodoTmp.valor.salarioUniversidadY}`);
-                            salarioUniversidadY += nodoTmp.valor.salarioUniversidadY;                            
+                            nodoTmp.valor.salarioUniversidadY = (nodoTmp.valor.cantidadUniversidad * 3000);
+                            console.log(`El subsidio por estudiante universidad del empleado ${nodoTmp.valor.nombreEmpleado} es: ${nodoTmp.valor.salarioUniversidadY}`);
+                            salarioUniversidadY += nodoTmp.valor.salario + nodoTmp.valor.salarioUniversidadY;                            
                         }                                                    
                     }
                 }
@@ -324,10 +370,31 @@ class ListaEmpleados {
                 i++;
             }totalNominaSubsidioTieneHijos += salarioPrimariaX + salarioSecundariaZ + salarioUniversidadY;
             console.log(`La nomina total de todos los empleados con subsidio por escolaridad es: ${totalNominaSubsidioTieneHijos}`);
+            totales = totales + totalNominaSubsidioTieneHijos;
+            totalSecundaria = totalSecundaria + salarioSecundariaZ;
         }
     }
 
-    //hombre - mujeres
+    
+    nominaTotlaItems(){
+        if(this.cabeza == null){
+            console.log(`No hay empleados para mostrar, no hay nodos en la lista`);
+        }
+        else {
+            let nodoTmp = this.cabeza;
+            let i = 1;
+            let totalNomina = 0;
+            while(nodoTmp != null){
+                totalNomina += nodoTmp.valor.salario;
+                nodoTmp = nodoTmp.siguiente;
+                i++;
+            }
+            console.log(`La nomina total de todos los empleados es: ${totalNomina}`);
+        }
+    }
+    
+
+    
 }
 
 
@@ -336,14 +403,16 @@ const listaEmpleados = new ListaEmpleados();
 
 let continuar = true;
 while(continuar){
-    const nombreEmpleado = readlineSync.question('Ingrese el nombre del empleado: ');
+    const nombreEmpleado = readlineSync.question('****** Ingrese el nombre del empleado: ');
     const salario = +readlineSync.question('Ingrese el salario del empleado: ');
     const estrato = +readlineSync.question('Ingrese el estrato del empleado: ');
     const rural = readlineSync.question('El empleado vive en zona rural? (s(1)/n(2)): ');
     const extranjero = readlineSync.question('El empleado es extranjero? 1(SI)-2(NO): ');
-    const hijos = readlineSync.question('El empleado tiene hijos que estudien? 1(SI)-2(NO): ');
+    const genero = readlineSync.question('El empleado es hombre o mujer? 1(Hombre)-2(Mujer): ');
+    const hijos = readlineSync.question('El empleado tiene hijos que estudien? 1(SI)-2(NO): ***************** ');
+    
 
-    const empleado = new Empleado(nombreEmpleado, salario, estrato, rural, extranjero, hijos);
+    const empleado = new Empleado(nombreEmpleado, salario, estrato, rural, extranjero, hijos, genero);
     listaEmpleados.insertar(empleado);
 
     const respuesta = readlineSync.question('Desea agregar otro empleado? (s/n): ');
@@ -357,4 +426,8 @@ listaEmpleados.nominaTotlaItems();
 listaEmpleados.subsidioEstrato();
 listaEmpleados.subsidioRural();
 listaEmpleados.subsidioExtranjero();
+listaEmpleados.calcularSalarioHombreMujer();
 listaEmpleados.subsidioTieneHijos();
+console.log(`El total de la nomina con todos los items anteriores es: ${totales}`);
+console.log(`El total de los pasajes que gasta la empresa es: ${totalPasajes}`);
+console.log(`El total de subsidio secundaria es: ${totalSecundaria}`);
